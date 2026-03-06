@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Pull back config files in peer directory
+cp ../linux/.config ../WSL-Kernel-Configuration/.config
+cp ../linux/localversion ../WSL-Kernel-Configuration/localversion
