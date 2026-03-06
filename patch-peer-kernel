@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Link config files in peer directory
+cp ../WSL-Kernel-Configuration/.config ../linux/.config
+cp ../WSL-Kernel-Configuration/localversion ../linux/localversion
+
+# Install patches
+cd ../linux
+git apply ../WSL-Kernel-Configuration/patches/01-lowercase-deb-package-names.patch

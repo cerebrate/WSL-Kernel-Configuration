@@ -1,0 +1,58 @@
+diff --git a/scripts/package/builddeb b/scripts/package/builddeb
+index 3627ca227e5a..c40369286eb5 100755
+--- a/scripts/package/builddeb
++++ b/scripts/package/builddeb
+@@ -141,8 +141,8 @@ install_kernel_headers () {
+ 
+ 	CC="${DEB_HOST_GNU_TYPE}-gcc" "${srctree}/scripts/package/install-extmod-build" "${pdir}/usr/src/linux-headers-${version}"
+ 
+-	mkdir -p $pdir/lib/modules/$version/
+-	ln -s /usr/src/linux-headers-$version $pdir/lib/modules/$version/build
++	mkdir -p $pdir/lib/modules/${KERNELRELEASE}/
++	ln -s /usr/src/linux-headers-$version $pdir/lib/modules/${KERNELRELEASE}/build
+ }
+ 
+ install_libc_headers () {
+diff --git a/scripts/package/mkdebian b/scripts/package/mkdebian
+index d4b007b38a47..7a414ee1e797 100755
+--- a/scripts/package/mkdebian
++++ b/scripts/package/mkdebian
+@@ -172,6 +172,11 @@ else
+ 	packagename=linux-image
+ fi
+ 
++# Debian package names must be lowercase; KERNELRELEASE may contain uppercase
++# letters (e.g. WSL2) that are required for kernel identification at runtime,
++# so lowercase only the portion used in package names.
++packagerelease=$(echo "${KERNELRELEASE}" | tr 'A-Z' 'a-z')
++
+ debarch=
+ set_debarch
+ 
+@@ -215,7 +220,7 @@ Build-Depends-Arch: bc, bison, flex,
+  python3:native, rsync
+ Homepage: https://www.kernel.org/
+ 
+-Package: $packagename-${KERNELRELEASE}
++Package: $packagename-${packagerelease}
+ Architecture: $debarch
+ Description: Linux kernel, version ${KERNELRELEASE}
+  This package contains the Linux kernel, modules and corresponding other
+@@ -238,7 +243,7 @@ EOF
+ if is_enabled CONFIG_MODULES; then
+ cat <<EOF >> debian/control
+ 
+-Package: linux-headers-${KERNELRELEASE}
++Package: linux-headers-${packagerelease}
+ Architecture: $debarch
+ Build-Profiles: <!pkg.${sourcename}.nokernelheaders>
+ Description: Linux kernel headers for ${KERNELRELEASE} on $debarch
+@@ -252,7 +257,7 @@ fi
+ if is_enabled CONFIG_DEBUG_INFO; then
+ cat <<EOF >> debian/control
+ 
+-Package: linux-image-${KERNELRELEASE}-dbg
++Package: linux-image-${packagerelease}-dbg
+ Section: debug
+ Architecture: $debarch
+ Build-Profiles: <!pkg.${sourcename}.nokerneldbg>
