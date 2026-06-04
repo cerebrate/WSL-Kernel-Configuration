@@ -1,0 +1,39 @@
+diff --git a/scripts/package/mkdebian b/scripts/package/mkdebian
+--- a/scripts/package/mkdebian
++++ b/scripts/package/mkdebian
+@@ -172,6 +172,8 @@
+ 	packagename=linux-image
+ fi
+ 
++krel_pkg=$(printf '%s' "${KERNELRELEASE}" | tr '[:upper:]' '[:lower:]')
++
+ debarch=
+ set_debarch
+ 
+@@ -215,7 +217,7 @@
+  python3:native, rsync
+ Homepage: https://www.kernel.org/
+ 
+-Package: $packagename-${KERNELRELEASE}
++Package: $packagename-${krel_pkg}
+ Architecture: $debarch
+ Description: Linux kernel, version ${KERNELRELEASE}
+  This package contains the Linux kernel, modules and corresponding other
+@@ -238,7 +240,7 @@
+ if is_enabled CONFIG_MODULES; then
+ cat <<EOF >> debian/control
+ 
+-Package: linux-headers-${KERNELRELEASE}
++Package: linux-headers-${krel_pkg}
+ Architecture: $debarch
+ Build-Profiles: <!pkg.${sourcename}.nokernelheaders>
+ Description: Linux kernel headers for ${KERNELRELEASE} on $debarch
+@@ -252,7 +254,7 @@
+ if is_enabled CONFIG_DEBUG_INFO; then
+ cat <<EOF >> debian/control
+ 
+-Package: linux-image-${KERNELRELEASE}-dbg
++Package: linux-image-${krel_pkg}-dbg
+ Section: debug
+ Architecture: $debarch
+ Build-Profiles: <!pkg.${sourcename}.nokerneldbg>
