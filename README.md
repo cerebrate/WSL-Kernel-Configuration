@@ -1,10 +1,12 @@
 # WSL Kernel Build Toolkit
 
-This directory holds personal build tooling and artifacts outside the Linux repo.
+This directory holds my personal build tooling and artifacts outside the Linux repo.
+
+When I use it, I clone it into `~/kernel-building`. I also have a local `~/src` directory for source code. These assumptions are used implicitly.
 
 ## Layout
 
-- `dot-config` — your master kernel config.
+- `dot-config` — the master kernel config.
 - `scripts/prepare-wsl-kernel-tree.sh` — copy config, generate date localversion, apply Debian patch.
 - `scripts/build-and-collect-wsl-artifacts.sh` — build once with `bindeb-pkg`, create modules VHDX, collect outputs.
 - `scripts/gen-modules-vhdx.sh` — hardened VHDX generator used by build script.
