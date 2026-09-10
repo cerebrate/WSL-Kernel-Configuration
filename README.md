@@ -19,5 +19,5 @@ patch-peer-kernel
 
 Switch to the `../linux` directory and build the kernel packages as normal.
 
-If you change `.config` or `localversion`, for example using `make xconfig`, do not forget to copy them back to `../WSL-Kernel-Configuration` afterwards.
+If you change `.config` or `localversion`, for example using `make xconfig`, do not forget to copy them back to `../WSL-Kernel-Configuration` afterwards. The `pull-configuration` script does this.
 
