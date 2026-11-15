@@ -1,10 +1,10 @@
 diff --git a/scripts/package/builddeb b/scripts/package/builddeb
-index 3627ca227e5a..c40369286eb5 100755
+index ba1defc..5fdc9ea 100755
 --- a/scripts/package/builddeb
 +++ b/scripts/package/builddeb
-@@ -141,8 +141,8 @@ install_kernel_headers () {
- 
- 	CC="${DEB_HOST_GNU_TYPE}-gcc" "${srctree}/scripts/package/install-extmod-build" "${pdir}/usr/src/linux-headers-${version}"
+@@ -147,8 +147,8 @@ install_kernel_headers () {
+ 		"${srctree}/scripts/package/install-extmod-build" "${pdir}/usr/src/linux-headers-${version}"
+ 	fi
  
 -	mkdir -p $pdir/lib/modules/$version/
 -	ln -s /usr/src/linux-headers-$version $pdir/lib/modules/$version/build
@@ -14,7 +14,7 @@ index 3627ca227e5a..c40369286eb5 100755
  
  install_libc_headers () {
 diff --git a/scripts/package/mkdebian b/scripts/package/mkdebian
-index d4b007b38a47..7a414ee1e797 100755
+index d4b007b..7a414ee 100755
 --- a/scripts/package/mkdebian
 +++ b/scripts/package/mkdebian
 @@ -172,6 +172,11 @@ else

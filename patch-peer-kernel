@@ -1,5 +1,67 @@
 #!/bin/sh
+#
+# Prepare the peer kernel tree (../linux) for a WSL build.
+#
+# Patches in patches/*.patch are applied once per kernel tree, in name order.
+# A flag file in ../linux records that they were applied (and their checksums),
+# so later runs skip patching and only refresh the configuration files.
+# To apply the patches again, e.g. after resetting ../linux, delete the flag.
 
-# Link config files in peer directory
-cp ../WSL-Kernel-Configuration/.config ../linux/.config
-cp ../WSL-Kernel-Configuration/localversion ../linux/localversion
+set -eu
+
+config_dir=../WSL-Kernel-Configuration
+kernel_dir=../linux
+patch_dir=$(cd "$config_dir/patches" && pwd)
+# Dotfiles are ignored by the kernel's .gitignore, so this stays out of
+# `git status` and out of the source diff that `make deb-pkg` generates.
+flag=$kernel_dir/.wsl-patches-applied
+
+if [ ! -d "$kernel_dir" ]; then
+	echo "error: kernel tree $kernel_dir not found" >&2
+	exit 1
+fi
+
+checksums() {
+	(
+		cd "$patch_dir"
+		for p in *.patch; do
+			if [ -e "$p" ]; then
+				sha256sum -- "$p"
+			fi
+		done
+	)
+}
+
+# Apply patches
+if [ -e "$flag" ]; then
+	echo "Patches already applied to $kernel_dir; skipping (delete $flag to re-apply)."
+	if [ "$(grep -v '^#' "$flag")" != "$(checksums)" ]; then
+		echo "warning: patches/ has changed since the patches were applied to $kernel_dir" >&2
+	fi
+else
+	# Positional parameters hold the patches applied so far, newest first,
+	# so a failure can be rolled back in reverse order.
+	set --
+	for p in "$patch_dir"/*.patch; do
+		[ -e "$p" ] || continue
+		echo "Applying $(basename "$p")"
+		if ! git -C "$kernel_dir" apply "$p"; then
+			echo "error: $(basename "$p") does not apply; rolling back" >&2
+			for q in "$@"; do
+				git -C "$kernel_dir" apply -R "$q"
+			done
+			exit 1
+		fi
+		set -- "$p" "$@"
+	done
+
+	{
+		echo "# Patches applied by patch-peer-kernel on $(date -Iseconds)."
+		echo "# Delete this file to make patch-peer-kernel apply them again."
+		checksums
+	} > "$flag"
+fi
+
+# Copy config files to peer directory
+cp "$config_dir/.config" "$kernel_dir/.config"
+cp "$config_dir/localversion" "$kernel_dir/localversion"
